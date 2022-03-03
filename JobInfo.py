@@ -7,17 +7,10 @@ def job_info(filename,date):
 
     data = pandas.read_csv(filename, delimiter=',', dtype={"JobID": "string", "JobName": "string", "Partition": "string", "TotalCPU": "string"})
 
-    if(not os.path.isfile("JobNames.txt")):
-        names = []
-    else:
-        with open("JobNames.txt","r") as f:
-            names = [line.strip() for line in f.readlines()]
-
-    with open("JobNames.txt","a") as f:
-        for JobName in data['JobName']:
-            if(JobName not in names):
-                names.append(JobName)
-                f.write(JobName + "\n")
+    names = set()
+    for JobName in data['JobName']:
+        if(JobName not in names):
+            names.add(JobName)
 
     coreHours = []
     for time in data['TotalCPU']:
@@ -35,12 +28,8 @@ def job_info(filename,date):
 
     data['Core Hours'] = coreHours
 
-    with open("JobInfo_" + date + ".csv", "w") as f:
-        f.write("Job Name,Total Core-Hours\n")
-        for name in names:
-            unique_hours = sum(data.loc[data['JobName'] == name]['Core Hours'])
-            if(unique_hours != 0):
-                f.write(name + "," + str(unique_hours) + "\n")
+    sum_df = data.groupby(by='JobName').sum()
+    sum_df.to_csv("JobInfo_" + date + ".csv",index=True)
 
 if __name__ == "__main__":
     if(len(sys.argv) != 3):

@@ -1,3 +1,3 @@
 #!/usr/bin/bash
 set -x
-JobInfo.py Jobs_08_21.csv 08_21
+JobInfo.py Jobs_${m}_$y.csv ${m}_$y
